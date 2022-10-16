@@ -1,11 +1,12 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { DataGrid, GridToolbarQuickFilter } from "@mui/x-data-grid";
+import { useNavigate } from "react-router-dom";
 import { usePokemonsContext } from "../../contexts/pokemonsContexts";
 import { columns } from "./pokemonsListColumns";
 
 export default function Pokedex() {
-  const { pokemonsList } = usePokemonsContext();
+  const { pokemonsList, fetchPokemonDetails } = usePokemonsContext();
   const { data } = pokemonsList;
 
   function QuickSearchToolbar() {
@@ -28,6 +29,15 @@ export default function Pokedex() {
     );
   }
 
+  const navigate = useNavigate();
+
+  function handleOnCellClick(params) {
+    const row = params.row;
+    console.log({ row });
+    navigate(`/${row.name}`);
+    fetchPokemonDetails({ name: row.name, url: row.url });
+  }
+
   return (
     <Box sx={{ height: 920, width: "100%" }}>
       <Box sx={{ display: "flex", height: "100%" }}>
@@ -39,6 +49,7 @@ export default function Pokedex() {
             rowsPerPageOptions={[15]}
             disableColumnMenu
             components={{ Toolbar: QuickSearchToolbar }}
+            onRowClick={handleOnCellClick}
           />
         </Box>
       </Box>

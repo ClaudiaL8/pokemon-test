@@ -1,74 +1,60 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import CircularProgress from "@mui/material/CircularProgress";
-import Stack from "@mui/material/Stack";
-// import Image from "material-ui-image";
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import {
+  Box,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Button,
+  Typography,
+  CircularProgress,
+  Stack,
+} from "@mui/material";
+import { usePokemonsContext } from "../contexts/pokemonsContexts";
 
-function Filter() {
-  const [pokemonCardData, setPokemonCardData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const { id } = useParams();
-  const urlPokemonData = `https://pokeapi.co/api/v2/pokemon/${id}`;
+export default function Filter() {
+  const location = useLocation();
+  const { selectedPokemonDetails, fetchPokemonDetails, pokemonsList } =
+    usePokemonsContext();
+  const { name, details, isLoading, error } = selectedPokemonDetails;
+  const { data } = pokemonsList;
 
   useEffect(() => {
-    async function getPokemonsData() {
-      setLoading(true);
-      try {
-        const { data } = await axios.get(urlPokemonData);
-        setPokemonCardData({
-          name: data.name,
-          sprites: data.sprites.back_default,
-          abilities: data.abilities.filter((ability) => !ability.is_hidden),
-          moves: data.moves,
-          moreProperties: await getMoreProperties(data.forms[0].url),
-        });
-      } catch (error) {
-        console.error(error);
-      }
-      setLoading(false);
+    if (!isLoading && !Object.entries(details).length && data.length) {
+      const name = location.pathname?.replaceAll("/", "");
+      fetchPokemonDetails({ name });
     }
-    getPokemonsData();
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function getMoreProperties(url) {
-    try {
-      const { data } = await axios.get(url);
-      return data;
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  }, [data]);
 
   return (
-    <Stack>
-      {loading ? (
-        <CircularProgress />
-      ) : (
+    <Box>
+      {isLoading && <CircularProgress />}
+      {!!Object.entries(details).length && (
         <Card sx={{ maxWidth: 345 }}>
-          <CardMedia
-            component="img"
-            image={pokemonCardData.sprites}
-            alt={pokemonCardData.name}
-          />
+          {details.sprites ? (
+            <CardMedia component="img" image={details.sprites} alt={name} />
+          ) : (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              textAlign={"center"}
+            >
+              Ohh sorry, I'm so shy for pictures
+            </Typography>
+          )}
+
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
-              {pokemonCardData.name}
+              {name}
             </Typography>
-            {pokemonCardData.moreProperties.types.map((type) => {
-              return <Stack>{type.type.name}</Stack>;
+            {details.moreProperties.types.map((type) => {
+              return <Stack key={type.type.name}>{type.type.name}</Stack>;
             })}
-            {/* <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary">
               Lizards are a widespread group of squamate reptiles, with over
               6,000 species, ranging across all continents except Antarctica
-            </Typography> */}
+            </Typography>
           </CardContent>
           <CardActions>
             <Button size="small">Share</Button>
@@ -76,8 +62,7 @@ function Filter() {
           </CardActions>
         </Card>
       )}
-    </Stack>
+      {error && <Typography>Upss algo fue mal</Typography>}
+    </Box>
   );
 }
-
-export default Filter;
