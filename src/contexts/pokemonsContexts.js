@@ -48,6 +48,7 @@ export const PokemonsContextProvider = ({ children }) => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchPokemonDetails = useCallback(async ({ name, url }) => {
     setSelectedPokemonDetails({
       ...initialState.selectedPokemon,
@@ -98,13 +99,25 @@ export const PokemonsContextProvider = ({ children }) => {
     fetchPokemonList();
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const setMoves = useCallback((newMoves) => {
+    setSelectedPokemonDetails({
+      ...selectedPokemonDetails,
+      details: {
+        ...selectedPokemonDetails.details,
+        moves: newMoves,
+      },
+    });
+  });
+
   const state = useMemo(
     () => ({
       pokemonsList,
       fetchPokemonDetails,
       selectedPokemonDetails,
+      setMoves,
     }),
-    [pokemonsList, fetchPokemonDetails, selectedPokemonDetails]
+    [pokemonsList, fetchPokemonDetails, selectedPokemonDetails, setMoves]
   );
   return (
     <PokemonsContext.Provider value={state}>

@@ -10,4 +10,10 @@ export const columns = [
     width: 300,
     getApplyQuickFilterFn: undefined,
   },
+  {
+    field: "delete",
+    width: 75,
+    sortable: false,
+    disableColumnMenu: true,
+  },
 ];

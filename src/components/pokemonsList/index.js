@@ -32,7 +32,7 @@ const Pokedex = () => {
   const navigate = useNavigate();
 
   const handleOnCellClick = ({ row }) => {
-    navigate(`/${row.name}`);
+    navigate(`/details/${row.name}`);
     fetchPokemonDetails({ name: row.name, url: row.url });
   };
 
