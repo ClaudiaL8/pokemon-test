@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
   useCallback,
+  useRef,
 } from "react";
 import {
   getPokemonsData,
@@ -21,6 +22,7 @@ const initialState = {
     isLoading: false,
     error: "",
   },
+  modifiedPokemons: [],
 };
 const PokemonsContext = createContext(initialState);
 
@@ -31,6 +33,8 @@ export const PokemonsContextProvider = ({ children }) => {
   const [selectedPokemonDetails, setSelectedPokemonDetails] = useState(
     initialState.selectedPokemon
   );
+
+  const modifiedPokemons = useRef([]);
 
   const fetchPokemonList = async () => {
     setPokemonList({ ...initialState.pokemonsList, isLoading: true });
@@ -55,9 +59,28 @@ export const PokemonsContextProvider = ({ children }) => {
       isLoading: true,
     });
 
+    const isModifiedPokemon = modifiedPokemons.current?.find(
+      (pokemon) => pokemon.name === name
+    );
+
+    if (isModifiedPokemon) {
+      setSelectedPokemonDetails({
+        name,
+        url,
+        details: {
+          sprites: isModifiedPokemon.details.sprites,
+          abilities: isModifiedPokemon.details.abilities,
+          moves: isModifiedPokemon.details.moves,
+          moreProperties: isModifiedPokemon.details.moreProperties,
+        },
+        isLoading: false,
+        error: "",
+      });
+      return;
+    }
     const findedUrl = () => {
       const poke = pokemonsList?.data?.find((pke) => pke.name === name);
-      return poke.url;
+      return poke?.url;
     };
 
     try {
@@ -101,13 +124,25 @@ export const PokemonsContextProvider = ({ children }) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const setMoves = useCallback((newMoves) => {
-    setSelectedPokemonDetails({
+    const modifiedData = {
       ...selectedPokemonDetails,
       details: {
         ...selectedPokemonDetails.details,
         moves: newMoves,
       },
-    });
+    };
+
+    const findIndexPokemon = modifiedPokemons.current.findIndex(
+      (pok) => pok.name === selectedPokemonDetails.name
+    );
+
+    if (findIndexPokemon >= 0) {
+      const modifiedItem = modifiedPokemons.current[findIndexPokemon];
+      modifiedItem.details.moves = newMoves;
+    } else {
+      modifiedPokemons.current.push(modifiedData);
+    }
+    setSelectedPokemonDetails(modifiedData);
   });
 
   const state = useMemo(
@@ -119,6 +154,7 @@ export const PokemonsContextProvider = ({ children }) => {
     }),
     [pokemonsList, fetchPokemonDetails, selectedPokemonDetails, setMoves]
   );
+
   return (
     <PokemonsContext.Provider value={state}>
       {children}

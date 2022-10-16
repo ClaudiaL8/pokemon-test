@@ -13,7 +13,7 @@ const PokemonDetailsPage = () => {
 
   useEffect(() => {
     if (!isLoading && !Object.entries(details).length && data.length) {
-      const name = location.pathname?.replaceAll("/", "");
+      const name = location.pathname?.replaceAll("/details/", "");
       fetchPokemonDetails({ name });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
