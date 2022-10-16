@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { usePokemonsContext } from "../../contexts/pokemonsContexts";
 import { columns } from "./pokemonsListColumns";
 
-export default function Pokedex() {
+const Pokedex = () => {
   const { pokemonsList, fetchPokemonDetails } = usePokemonsContext();
   const { data } = pokemonsList;
 
-  function QuickSearchToolbar() {
+  const QuickSearchToolbar = () => {
     return (
       <Box
         sx={{
@@ -27,16 +27,14 @@ export default function Pokedex() {
         />
       </Box>
     );
-  }
+  };
 
   const navigate = useNavigate();
 
-  function handleOnCellClick(params) {
-    const row = params.row;
-    console.log({ row });
+  const handleOnCellClick = ({ row }) => {
     navigate(`/${row.name}`);
     fetchPokemonDetails({ name: row.name, url: row.url });
-  }
+  };
 
   return (
     <Box sx={{ height: 920, width: "100%" }}>
@@ -55,4 +53,6 @@ export default function Pokedex() {
       </Box>
     </Box>
   );
-}
+};
+
+export default Pokedex;

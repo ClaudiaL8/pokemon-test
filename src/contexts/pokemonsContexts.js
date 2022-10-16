@@ -68,8 +68,16 @@ export const PokemonsContextProvider = ({ children }) => {
         url: url || findedUrl(),
         details: {
           sprites: sprites.back_default,
-          abilities: abilities.filter((ability) => !ability.is_hidden),
-          moves: moves,
+          abilities: abilities
+            .filter((ab) => !ab.is_hidden)
+            .map((ab) => ab.ability.name),
+          moves: moves
+            .map((mv, i) => ({
+              name: mv.move.name,
+              url: mv.move.url,
+              id: i,
+            }))
+            .sort((a, b) => a.url - b.url),
           moreProperties,
         },
         isLoading: false,
